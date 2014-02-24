@@ -1,0 +1,59 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<polymer-element name="reddit-comments"  attributes="username">
+  <template>
+    <style>
+    :host {
+      display: block;
+    }
+    h1 {
+      color: black;
+    }
+    .up-votes {
+      color: orange;      
+    }
+    .down-votes {
+      color: blue;
+    }
+    </style>
+    <h1>{{ username }}'s Reddit Flair</h1>
+    <ul>
+      <template id="comments" repeat="{{ item in items }}">
+        <li>
+          <span class="up-votes">{{ item.data.ups }}</span>
+          <span class="down-votes">{{ item.data.downs }}</span>
+          <span>{{ item.data.body }}</span>
+        </li>
+      </template>
+    </ul>
+  </template>
+  <script>
+    Polymer('reddit-comments', {
+      username : 'username',
+      ready : function () {
+        var data;
+        var jsonUrl = 'http://www.reddit.com/user/' + this.username + '.json';
+        var request = new XMLHttpRequest;
+        var that = this;
+        that.items = [];
+        request.open('GET', jsonUrl, true);
+
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400){
+            // Success!
+            data = JSON.parse(request.responseText);
+            that.items = data.data.children;
+          } else {
+            console.error("An error occurred", request.status);
+          }
+        };
+
+        request.onerror = function() {
+          console.error("An error occurred");
+        };
+
+        request.send();
+      }
+    });
+  </script>
+</polymer-element>
